@@ -349,3 +349,16 @@ if (test9results.Results.length == 0) {
 } else {
 	console.log("FAIL: Test 9");
 }
+
+/* TEST 10
+ * if the search word is not in the scanned content, should return empty
+ *
+ * Should return 0 objects from TestBook1
+ */
+console.log("<----------TEST 10: No Search Results--------->");
+const test10results = findSearchTermInBooks("cat", TestBook4);
+if (test10results.Results.length == 0) {
+	console.log("PASS: Test 10");
+} else {
+	console.log("FAIL: Test 10");
+}
