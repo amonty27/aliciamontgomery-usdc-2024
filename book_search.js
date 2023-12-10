@@ -25,49 +25,44 @@ function findSearchTermInBooks(searchTerm, scannedTextObj) {
 		Results: [],
 	};
 
-	// convert the search term to a regular expresion
-	//console.log(searchTerm.charAt(searchTerm.length-1));
+	// convert the search term to a regular expresion and add a space (" ") to the end of it
+	// if it does not have one for searching purposes
 	if (searchTerm.charAt(searchTerm.length - 1) !== " ") {
 		searchTerm = searchTerm.concat("", " ");
-		console.log("concat SearchTerm: " + searchTerm.replace(" ", "_"));
 	}
-	let regSearchTerm = new RegExp(searchTerm, "g");
-	//console.log(regSearchTerm);
+	// the RegExp uses a global modifier ("g") to search the entire book line instead of stopping at the first result
+	var regSearchTerm = new RegExp(searchTerm, "g");
 
-	// if no book was scanned, return and empty result
+	// if no book was scanned, return an empty result
 	if (Object.keys(scannedTextObj).length === 0) {
-		//console.log("length 0");
 		return result;
 	}
+
 	//if the book's text has not been scanned (i.e. the length of the "Content" array is 0), return the empty result
 	else if (Object.keys(scannedTextObj[0]["Content"]).length === 0) {
-		console.log("length of Content 0");
-		console.log(result);
 		return result;
-	} else {
-		console.log("in else loop");
-		//console.log(Object.keys(scannedTextObj[0]["Content"]).length);
-		//console.log(scannedTextObj[0]["Content"][0]["Text"]);
+	}
+
+	// if there is a book and it has content scanned, continue
+	else {
+		// search through the entire scannedTextObj array, which could be 1 or more
 		for (let x = 0; x < Object.keys(scannedTextObj).length; x++) {
-			console.log("in first for loop");
+			// search through the entire content array of the object, which could be 1 or more
 			for (
 				let i = 0;
 				i < Object.keys(scannedTextObj[x]["Content"]).length;
 				i++
 			) {
-				console.log("in second for loop");
-
-				//console.log(scannedTextObj[x]["Content"][i]["Text"].charAt(0));
-				//console.log(Object.keys(scannedTextObj[x]["Content"][i]["Text"]).length + " is the length of the line");
-
+				/* if the character at the end of the line is hyphenated at the end of the line,
+				 * get the rest word and add it to the first sentence
+				 * (Note: it also checks if the next line exists before trying to combine them)
+				 */
 				if (
 					scannedTextObj[x]["Content"][i]["Text"].charAt(
 						Object.keys(scannedTextObj[x]["Content"][i]["Text"]).length - 1
 					) == "-"
 				) {
-					console.log("the line ends with -");
 					if (scannedTextObj[x]["Content"][i + 1] != null) {
-						console.log("THE NEXT LINE EXIST");
 						var combinedText = scannedTextObj[x]["Content"][i]["Text"]
 							.replace("-", "")
 							.concat(
@@ -75,13 +70,8 @@ function findSearchTermInBooks(searchTerm, scannedTextObj) {
 								scannedTextObj[x]["Content"][i + 1]["Text"].split(" ")[0],
 								" "
 							);
-						//var combinedText = scannedTextObj[x]["Content"][i]["Text"].replace("-", "").concat("",scannedTextObj[x]["Content"][i+1]["Text"]);
-						console.log("combinedText: " + combinedText);
-						//search the content from the Content array
+						//search the content from the Content array wiht the new combinedText
 						var searchResults = combinedText.match(regSearchTerm);
-						console.log(
-							"the searchResults after combining sentences: " + searchResults
-						);
 					}
 				} else {
 					//search the content from the Content array
@@ -90,29 +80,22 @@ function findSearchTermInBooks(searchTerm, scannedTextObj) {
 						.match(regSearchTerm);
 				}
 
+				/* if the search found results, add ISBN, Page, and Line numbers to the result array
+				 *
+				 */
 				if (searchResults != null) {
-					console.log("Search results not null. Adding to array");
-					console.log("search results:" + searchResults);
 					for (let y = 0; y < searchResults.length; y++) {
-						console.log("in here " + y);
 						let newSearchResult = {
 							ISBN: scannedTextObj[x]["ISBN"],
 							Page: scannedTextObj[x]["Content"][i]["Page"],
 							Line: scannedTextObj[x]["Content"][i]["Line"],
 						};
-						console.log(newSearchResult);
 						result.Results.push(newSearchResult);
 					}
-
-					console.log(
-						"result array so far:" + JSON.stringify(result["Results"])
-					);
 				}
-				//console.log("Search results at " + i + ": " + searchResults);
 			}
 		}
 	}
-	console.log("results at the end: " + JSON.stringify(result));
 	return result;
 }
 
@@ -153,6 +136,7 @@ const twentyLeaguesOut = {
 	],
 };
 
+// Additional test books used in the unit testing
 const TestBook1 = [
 	{
 		Title: "Test Book",
@@ -278,7 +262,7 @@ if (test2result.Results.length == 1) {
  * Should return 3 objects from TestBook1: page 2/line 8 and page 3/line 9 two times
  */
 console.log("\n" + "MY UNIT TESTS");
-console.log("<----------TEST 3--------->");
+console.log("<----------TEST 3: Search Term appears Multiple Times--------->");
 const test3results = findSearchTermInBooks("the", TestBook1);
 if (test3results.Results.length == 3) {
 	console.log("PASS: Test 3");
@@ -291,7 +275,7 @@ if (test3results.Results.length == 3) {
  *
  * Should return 1 object from TestBook1: page2/line 8 one time
  */
-console.log("<----------TEST 4--------->");
+console.log("<----------TEST 4: Case-sensitive Search--------->");
 const test4results = findSearchTermInBooks("The", TestBook1);
 if (test4results.Results.length == 1) {
 	console.log("PASS: Test 4");
@@ -304,7 +288,7 @@ if (test4results.Results.length == 1) {
  *
  * Should return 1 object from TestBook1: page2/line 8 one time
  */
-console.log("<----------TEST 5--------->");
+console.log("<----------TEST 5: Hyphenated Words--------->");
 const test5results = findSearchTermInBooks("darkness", TestBook1);
 if (test5results.Results.length == 1) {
 	console.log("PASS: Test 5");
@@ -315,9 +299,10 @@ if (test5results.Results.length == 1) {
 /* TEST 6
  * If the JSON Object has multiple books, check all the books and not just the first one
  *
- * Should return 4 objects from TestBook2: page 2/line 8 two times and page 2/ line 9 from "Test Book" and page 31/ line 8 from "Twenty Thousand Leagues Under the Sea"
+ * Should return 4 objects from TestBook2: page 2/line 8 two times and page 2/ line 9 from "Test Book",
+ * and page 31/ line 8 from "Twenty Thousand Leagues Under the Sea"
  */
-console.log("<----------TEST 6--------->");
+console.log("<----------TEST 6: Multiple Books--------->");
 const test6results = findSearchTermInBooks("the", TestBook2);
 if (test6results.Results.length == 4) {
 	console.log("PASS: Test 6");
@@ -330,7 +315,7 @@ if (test6results.Results.length == 4) {
  *
  * Should return 1 objects from TestBook1: page 2/ line 9 from "Test Book"
  */
-console.log("<----------TEST 7--------->");
+console.log("<----------TEST 7: Non-Standard Characters in Words--------->");
 const test7results = findSearchTermInBooks("Canadian's", TestBook1);
 if (test7results.Results.length == 1) {
 	console.log("PASS: Test 7");
@@ -344,7 +329,7 @@ if (test7results.Results.length == 1) {
  *
  * Should return 0 objects from TestBook3
  */
-console.log("<----------TEST 8--------->");
+console.log("<----------TEST 8: No Scanned Content--------->");
 const test8results = findSearchTermInBooks("the", TestBook3);
 if (test8results.Results.length == 0) {
 	console.log("PASS: Test 8");
@@ -357,7 +342,7 @@ if (test8results.Results.length == 0) {
  *
  * Should return 0 objects from TestBook4
  */
-console.log("<----------TEST 9--------->");
+console.log("<----------TEST 9: No Scanned Book--------->");
 const test9results = findSearchTermInBooks("the", TestBook4);
 if (test9results.Results.length == 0) {
 	console.log("PASS: Test 9");
