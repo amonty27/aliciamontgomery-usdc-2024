@@ -338,7 +338,7 @@ if (test8results.Results.length == 0) {
 }
 
 /* TEST 9
- * if no book was scanned, return and empty result
+ * If no book was scanned (i.e. the length of the Book array is 0), return an empty result
  *
  * Should return 0 objects from TestBook4
  */
@@ -351,7 +351,7 @@ if (test9results.Results.length == 0) {
 }
 
 /* TEST 10
- * if the search word is not in the scanned content, should return empty
+ * if the search term is not in the scanned content, return an empty result
  *
  * Should return 0 objects from TestBook1
  */
