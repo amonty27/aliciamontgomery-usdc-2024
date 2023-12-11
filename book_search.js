@@ -25,7 +25,7 @@ function findSearchTermInBooks(searchTerm, scannedTextObj) {
 		Results: [],
 	};
 
-	// convert the search term to a regular expresion and add a space (" ") to the end of it
+	// convert the search term to a regular expression and add a space (" ") to the end of it
 	// if it does not have one for searching purposes
 	if (searchTerm.charAt(searchTerm.length - 1) !== " ") {
 		searchTerm = searchTerm.concat("", " ");
@@ -70,7 +70,7 @@ function findSearchTermInBooks(searchTerm, scannedTextObj) {
 								scannedTextObj[x]["Content"][i + 1]["Text"].split(" ")[0],
 								" "
 							);
-						//search the content from the Content array wiht the new combinedText
+						//search the content from the Content array with the new combinedText
 						var searchResults = combinedText.match(regSearchTerm);
 					}
 				} else {
@@ -284,7 +284,7 @@ if (test4results.Results.length == 1) {
 }
 
 /* TEST 5
- * If the word at the end of the line is broken by the chracter, return the line it starts on
+ * If the word at the end of the line is broken by the character, return the line it starts on
  *
  * Should return 1 object from TestBook1: page2/line 8 one time
  */
